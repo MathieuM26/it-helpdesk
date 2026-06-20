@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.id }} — IT Helpdesk{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Retour</a>
+    <h1>Ticket #{{ ticket.id }} — {{ ticket.title }}</h1>
+  </div>
+  {% if current_user.is_tech or ticket.created_by == current_user.id %}
+  <a href="{{ url_for('edit_ticket', ticket_id=ticket.id) }}" class="btn btn-secondary">Modifier</a>
+  {% endif %}
+</div>
+
+<div class="detail-grid">
+
+  <!-- Left: main info -->
+  <div class="detail-main">
+    <div class="card">
+      <h3>Description</h3>
+      <p class="ticket-description">{{ ticket.description }}</p>
+    </div>
+
+    <!-- Comments -->
+    <div class="card">
+      <h3>Commentaires ({{ comments | length }})</h3>
+      <div class="comments-list">
+        {% for c in comments %}
+        <div class="comment {% if c.author_role in ('admin','tech') %}comment-tech{% endif %}">
+          <div class="comment-header">
+            <span class="comment-author">
+              {% if c.author_role in ('admin','tech') %}🔧{% else %}👤{% endif %}
+              {{ c.author_name }}
+            </span>
+            <span class="comment-date">{{ c.created_at }}</span>
+          </div>
+          <p class="comment-body">{{ c.content }}</p>
+        </div>
+        {% else %}
+        <p class="text-muted">Aucun commentaire pour l'instant.</p>
+        {% endfor %}
+      </div>
+
+      <form method="POST" action="{{ url_for('add_comment', ticket_id=ticket.id) }}" class="comment-form">
+        <div class="form-group">
+          <label>Ajouter un commentaire</label>
+          <textarea name="content" class="form-control" rows="3" placeholder="Votre message..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+      </form>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+      <h3>Historique</h3>
+      <ul class="history-list">
+        {% for h in history %}
+        <li>
+          <span class="history-dot"></span>
+          <span class="history-action">{{ h.action }}</span>
+          <span class="history-meta">par {{ h.actor_name }} · {{ h.created_at }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right: sidebar -->
+  <div class="detail-sidebar">
+    <div class="card">
+      <h3>Informations</h3>
+      <dl class="info-list">
+        <dt>Statut</dt>
+        <dd><span class="badge-status status-{{ ticket.status | lower | replace(' ','_') }}">{{ ticket.status }}</span></dd>
+        <dt>Priorité</dt>
+        <dd><span class="badge-priority priority-{{ ticket.priority | lower | replace(' ','_') }}">{{ ticket.priority }}</span></dd>
+        <dt>Catégorie</dt>
+        <dd>{{ ticket.category }}</dd>
+        <dt>Demandeur</dt>
+        <dd>{{ ticket.creator_name }}</dd>
+        <dt>Assigné à</dt>
+        <dd>{{ ticket.assignee_name or '—' }}</dd>
+        <dt>Créé le</dt>
+        <dd>{{ ticket.created_at }}</dd>
+        <dt>Mis à jour</dt>
+        <dd>{{ ticket.updated_at }}</dd>
+        {% if ticket.resolved_at %}
+        <dt>Résolu le</dt>
+        <dd>{{ ticket.resolved_at }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+
+    {% if current_user.is_tech %}
+    <div class="card">
+      <h3>Actions technicien</h3>
+      <form method="POST" action="{{ url_for('update_ticket', ticket_id=ticket.id) }}">
+        <div class="form-group">
+          <label>Statut</label>
+          <select name="status" class="form-control">
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if s == ticket.status %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigné à</label>
+          <select name="assigned_to" class="form-control">
+            <option value="">— Non assigné —</option>
+            {% for t in techs %}
+            <option value="{{ t.id }}" {% if t.id == ticket.assigned_to %}selected{% endif %}>{{ t.full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Mettre à jour</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

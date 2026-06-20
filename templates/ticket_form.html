@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{% if ticket %}Modifier ticket #{{ ticket.id }}{% else %}Nouveau ticket{% endif %} — IT Helpdesk{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Retour</a>
+    <h1>{% if ticket %}Modifier le ticket #{{ ticket.id }}{% else %}Nouveau ticket{% endif %}</h1>
+  </div>
+</div>
+
+<div class="form-card">
+  <form method="POST">
+    <div class="form-group">
+      <label>Titre <span class="required">*</span></label>
+      <input type="text" name="title" class="form-control" required maxlength="150"
+             value="{{ ticket.title if ticket else '' }}" placeholder="Résumé court du problème">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Catégorie <span class="required">*</span></label>
+        <select name="category" class="form-control" required>
+          {% for c in categories %}
+          <option value="{{ c }}" {% if ticket and ticket.category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priorité <span class="required">*</span></label>
+        <select name="priority" class="form-control" required>
+          {% for p in priorities %}
+          <option value="{{ p }}" {% if ticket and ticket.priority == p %}selected{% elif not ticket and p == 'Moyenne' %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Description <span class="required">*</span></label>
+      <textarea name="description" class="form-control" rows="6" required
+                placeholder="Décrivez le problème en détail : symptômes, depuis quand, impact...">{{ ticket.description if ticket else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        {% if ticket %}Enregistrer les modifications{% else %}Créer le ticket{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

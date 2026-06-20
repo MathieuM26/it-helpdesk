@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Connexion — IT Helpdesk{% endblock %}
+{% block content %}
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-logo">🖥️</div>
+    <h1 class="login-title">IT Helpdesk</h1>
+    <p class="login-sub">Connectez-vous pour gérer vos tickets</p>
+
+    <form method="POST" class="login-form">
+      <div class="form-group">
+        <label>Nom d'utilisateur</label>
+        <input type="text" name="username" class="form-control" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+    </form>
+
+    <div class="login-hint">
+      <p>Comptes de démonstration :</p>
+      <code>admin / admin123</code> &nbsp;·&nbsp;
+      <code>tech1 / tech123</code> &nbsp;·&nbsp;
+      <code>user1 / user123</code>
+    </div>
+  </div>
+</div>
+{% endblock %}

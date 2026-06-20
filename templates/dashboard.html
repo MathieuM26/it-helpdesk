@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — IT Helpdesk{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Tableau de bord</h1>
+  <a href="{{ url_for('new_ticket') }}" class="btn btn-primary">+ Nouveau ticket</a>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card stat-total">
+    <div class="stat-number">{{ stats.total }}</div>
+    <div class="stat-label">Total tickets</div>
+  </div>
+  <div class="stat-card stat-open">
+    <div class="stat-number">{{ stats.ouverts }}</div>
+    <div class="stat-label">Ouverts</div>
+  </div>
+  <div class="stat-card stat-progress">
+    <div class="stat-number">{{ stats.en_cours }}</div>
+    <div class="stat-label">En cours</div>
+  </div>
+  <div class="stat-card stat-resolved">
+    <div class="stat-number">{{ stats.resolus }}</div>
+    <div class="stat-label">Résolus</div>
+  </div>
+  <div class="stat-card stat-critical">
+    <div class="stat-number">{{ stats.critiques }}</div>
+    <div class="stat-label">Critiques actifs</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+  <input type="text" id="search" class="form-control search-input" placeholder="🔍  Rechercher un ticket...">
+  <select id="filter-status" class="form-control filter-select">
+    <option value="">Tous les statuts</option>
+    {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+  </select>
+  <select id="filter-priority" class="form-control filter-select">
+    <option value="">Toutes les priorités</option>
+    {% for p in priorities %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+  </select>
+  <select id="filter-category" class="form-control filter-select">
+    <option value="">Toutes les catégories</option>
+    {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+  </select>
+</div>
+
+<!-- Ticket table -->
+<div class="table-wrapper">
+  <table class="ticket-table" id="ticket-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Titre</th>
+        <th>Catégorie</th>
+        <th>Priorité</th>
+        <th>Statut</th>
+        <th>Demandeur</th>
+        {% if current_user.is_tech %}<th>Assigné à</th>{% endif %}
+        <th>Créé le</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for t in tickets %}
+      <tr class="ticket-row" data-status="{{ t.status }}" data-priority="{{ t.priority }}" data-category="{{ t.category }}"
+          onclick="window.location='{{ url_for('view_ticket', ticket_id=t.id) }}'">
+        <td class="ticket-id">#{{ t.id }}</td>
+        <td class="ticket-title">{{ t.title }}</td>
+        <td><span class="tag">{{ t.category }}</span></td>
+        <td><span class="badge-priority priority-{{ t.priority | lower | replace(' ','_') }}">{{ t.priority }}</span></td>
+        <td><span class="badge-status status-{{ t.status | lower | replace(' ','_') }}">{{ t.status }}</span></td>
+        <td>{{ t.creator_name }}</td>
+        {% if current_user.is_tech %}<td>{{ t.assignee_name or '—' }}</td>{% endif %}
+        <td class="ticket-date">{{ t.created_at[:10] }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8" class="empty-table">Aucun ticket trouvé.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

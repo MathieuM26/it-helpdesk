@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Gestion des utilisateurs — IT Helpdesk{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Utilisateurs</h1>
+  <a href="{{ url_for('admin_new_user') }}" class="btn btn-primary">+ Nouvel utilisateur</a>
+</div>
+
+<div class="table-wrapper">
+  <table class="ticket-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nom complet</th>
+        <th>Identifiant</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Créé le</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.full_name }}</td>
+        <td><code>{{ u.username }}</code></td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge badge-{{ u.role }}">{{ u.role }}</span></td>
+        <td>{{ u.created_at[:10] }}</td>
+        <td>
+          <a href="{{ url_for('admin_edit_user', user_id=u.id) }}" class="btn btn-sm btn-secondary">Modifier</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
